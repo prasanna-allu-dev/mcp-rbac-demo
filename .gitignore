@@ -1,0 +1,32 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## NuGet
+*.nupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+
+## VS / Rider
+.vs/
+.idea/
+*.rsuser
+*.DotSettings.user
+
+## SQLite databases (generated at runtime)
+*.db
+*.db-shm
+*.db-wal
+
+## OS junk
+.DS_Store
+Thumbs.db
+
+## Test results
+TestResults/
+*.trx
+coverage/
