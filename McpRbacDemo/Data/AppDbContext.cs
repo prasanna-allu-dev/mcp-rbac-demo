@@ -10,6 +10,7 @@ public class AppDbContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
+    public DbSet<AuthorizationAudit> AuthorizationAudits => Set<AuthorizationAudit>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -33,5 +34,13 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Role>()
             .HasIndex(r => r.Name)
             .IsUnique();
+
+        // Audit rows are written on every tool call and read back newest-first.
+        modelBuilder.Entity<AuthorizationAudit>()
+            .HasIndex(a => a.TimestampUtc);
+
+        modelBuilder.Entity<AuthorizationAudit>()
+            .Property(a => a.Outcome)
+            .HasConversion<string>();
     }
 }

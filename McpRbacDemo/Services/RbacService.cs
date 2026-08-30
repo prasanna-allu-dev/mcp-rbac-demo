@@ -3,41 +3,75 @@ using Microsoft.EntityFrameworkCore;
 
 namespace McpRbacDemo.Services;
 
-public class RbacService : IRbacService
+/// <summary>
+/// Resolves a caller's roles from the database and checks them against the
+/// configured <see cref="ToolPermissionMap"/>.
+/// </summary>
+public sealed class RbacService : IRbacService
 {
     private readonly AppDbContext _db;
+    private readonly ToolPermissionMap _permissions;
+    private readonly ICallerIdentityProvider _identity;
 
-    // Maps each tool name to the roles that are allowed to call it.
-    // Kept here so the policy lives in one place and is easy to extend.
-    private static readonly Dictionary<string, HashSet<string>> ToolPermissions = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ["inventory_lookup"]  = new(StringComparer.OrdinalIgnoreCase) { "Admin", "Manager" },
-        ["generate_report"]   = new(StringComparer.OrdinalIgnoreCase) { "Manager", "Viewer" },
-        ["manage_users"]      = new(StringComparer.OrdinalIgnoreCase) { "Admin" },
-        ["system_status"]     = new(StringComparer.OrdinalIgnoreCase) { "Admin", "Manager", "Viewer" },
-    };
-
-    public RbacService(AppDbContext db)
+    public RbacService(AppDbContext db, ToolPermissionMap permissions, ICallerIdentityProvider identity)
     {
         _db = db;
+        _permissions = permissions;
+        _identity = identity;
     }
 
-    public async Task<List<string>> GetRolesAsync(string username)
+    public async Task<IReadOnlyList<string>> GetRolesAsync(string username, CancellationToken cancellationToken = default)
     {
         return await _db.UserRoles
             .Where(ur => ur.User.Username == username && ur.User.IsActive)
             .Select(ur => ur.Role.Name)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task<bool> IsAuthorizedAsync(string username, string toolName)
+    public async Task<AuthorizationResult> AuthorizeAsync(
+        string? username,
+        string toolName,
+        CancellationToken cancellationToken = default)
     {
-        if (!ToolPermissions.TryGetValue(toolName, out var allowedRoles))
-            return false;
+        if (string.IsNullOrWhiteSpace(username))
+            return AuthorizationResult.NoIdentity(_identity.IdentitySource);
 
-        var userRoles = await GetRolesAsync(username);
-        return userRoles.Any(role => allowedRoles.Contains(role));
+        // Deny by default: a tool with no policy entry is unreachable, so adding a tool
+        // without also granting it cannot accidentally expose it.
+        if (!_permissions.TryGetAllowedRoles(toolName, out var allowedRoles))
+            return AuthorizationResult.UnknownTool(toolName);
+
+        var userRoles = await GetRolesAsync(username, cancellationToken);
+        if (userRoles.Count == 0)
+            return AuthorizationResult.UnknownPrincipal(toolName);
+
+        return userRoles.Any(allowedRoles.Contains)
+            ? AuthorizationResult.Allow()
+            : AuthorizationResult.InsufficientRole(toolName);
     }
 
-    public static IReadOnlyDictionary<string, HashSet<string>> GetPermissionMap() => ToolPermissions;
+    public async Task<IReadOnlySet<string>> GetAuthorizedToolsAsync(
+        string? username,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(username))
+            return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        // One query for the caller's roles, then a pure in-memory filter over the policy.
+        var userRoles = await GetRolesAsync(username, cancellationToken);
+        if (userRoles.Count == 0)
+            return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        var authorized = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var tool in _permissions.Tools)
+        {
+            if (_permissions.TryGetAllowedRoles(tool, out var allowedRoles) &&
+                userRoles.Any(allowedRoles.Contains))
+            {
+                authorized.Add(tool);
+            }
+        }
+
+        return authorized;
+    }
 }
