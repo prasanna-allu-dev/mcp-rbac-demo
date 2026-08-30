@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "McpRbacDemo", "McpRbacDemo\McpRbacDemo.csproj", "{4888C1F2-9DE5-410D-B67B-0FE12A6682EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "McpRbacDemo.Tests", "McpRbacDemo.Tests\McpRbacDemo.Tests.csproj", "{31CAEDAF-5F89-47FC-9BAE-178F1288F231}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4888C1F2-9DE5-410D-B67B-0FE12A6682EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4888C1F2-9DE5-410D-B67B-0FE12A6682EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4888C1F2-9DE5-410D-B67B-0FE12A6682EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4888C1F2-9DE5-410D-B67B-0FE12A6682EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31CAEDAF-5F89-47FC-9BAE-178F1288F231}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31CAEDAF-5F89-47FC-9BAE-178F1288F231}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31CAEDAF-5F89-47FC-9BAE-178F1288F231}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31CAEDAF-5F89-47FC-9BAE-178F1288F231}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
