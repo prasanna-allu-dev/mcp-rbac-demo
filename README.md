@@ -1,6 +1,6 @@
 # MCP RBAC Demo
 
-[![CI](https://github.com/allubalu/mcp-rbac-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/allubalu/mcp-rbac-demo/actions/workflows/ci.yml)
+[![CI](https://github.com/prasanna-allu-dev/mcp-rbac-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/prasanna-allu-dev/mcp-rbac-demo/actions/workflows/ci.yml)
 [![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4)](https://dotnet.microsoft.com/download/dotnet/8.0)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
